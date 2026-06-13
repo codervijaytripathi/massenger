@@ -76,22 +76,76 @@
 
   .row .num { font-family: monospace; font-weight: bold; }
   .row a {
-    padding: 6px 10px;
+    padding: 6px 16px;
     border-radius: 4px;
     text-decoration: none;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: bold;
     background: #25D366;
     color: white;
   }
-  .row a.business { background: #128C7E; }
   .row.sent a { background: #6c757d; pointer-events: none; }
-  .row .send-group { display: flex; gap: 4px; }
+
+  /* Account picker overlay */
+  #accountPicker {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  #accountPicker .box {
+    background: white;
+    border-radius: 10px;
+    padding: 24px;
+    width: 85%;
+    max-width: 360px;
+    text-align: center;
+  }
+  #accountPicker h3 { margin-top: 0; }
+  #accountPicker .opt {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    margin: 10px 0;
+    font-size: 17px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: white;
+  }
+  #accountPicker .opt1 { background: #128C7E; }
+  #accountPicker .opt2 { background: #25D366; }
+
+  .currentAccount {
+    text-align: center;
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 8px;
+  }
+  .currentAccount span {
+    font-weight: bold;
+    text-decoration: underline;
+    cursor: pointer;
+  }
 </style>
 </head>
 <body>
 
+<div id="accountPicker">
+  <div class="box">
+    <h3>Kaunsa account use karna hai?</h3>
+    <button class="opt opt1" onclick="selectAccount(1)">Account 1 (76)</button>
+    <button class="opt opt2" onclick="selectAccount(2)">Account 2 (65)</button>
+  </div>
+</div>
+
 <h2>Messenger</h2>
+
+<div class="currentAccount">Account: <span id="currentAccLabel" onclick="openPicker()">-</span> (badalne ke liye tap karo)</div>
 
 <label for="msg">Message</label>
 <textarea id="msg" rows="5"></textarea>
@@ -114,18 +168,47 @@
 <div id="output"></div>
 
 <script>
-const STORAGE_KEY = 'wa_bulk_sender_data_v1';
+const STORAGE_KEY_76 = 'wa_bulk_sender_data_76';
+const STORAGE_KEY_65 = 'wa_bulk_sender_data_65';
+
+let currentAccount = null; // 1 or 2
 let entries = [];
+
+const PACKAGES = {
+  1: 'com.whatsapp.w4b',  // 76 - Business
+  2: 'com.whatsapp'        // 65 - Normal
+};
+
+function storageKey() {
+  return currentAccount === 1 ? STORAGE_KEY_76 : STORAGE_KEY_65;
+}
+
+function openPicker() {
+  document.getElementById('accountPicker').style.display = 'flex';
+}
+
+function selectAccount(acc) {
+  currentAccount = acc;
+  document.getElementById('accountPicker').style.display = 'none';
+  document.getElementById('currentAccLabel').textContent = acc === 1 ? 'Account 1 (76)' : 'Account 2 (65)';
+  loadData();
+  render();
+}
 
 function loadData() {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(storageKey());
     if (saved) {
       const data = JSON.parse(saved);
       entries = data.entries || [];
       document.getElementById('msg').value = data.msg || '';
+    } else {
+      entries = [];
+      document.getElementById('msg').value = '';
     }
-  } catch (e) {}
+  } catch (e) {
+    entries = [];
+  }
 }
 
 function saveData() {
@@ -133,7 +216,7 @@ function saveData() {
     entries: entries,
     msg: document.getElementById('msg').value
   };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  localStorage.setItem(storageKey(), JSON.stringify(data));
 }
 
 function addNumbers() {
@@ -168,57 +251,34 @@ function addNumbers() {
 
 function render() {
   const msg = document.getElementById('msg').value.trim();
+  const pkg = PACKAGES[currentAccount];
   const output = document.getElementById('output');
   output.innerHTML = '';
 
   entries.forEach((entry, idx) => {
-    const phoneDigits = entry.num;
     const encodedMsg = encodeURIComponent(msg);
+    const url = 'intent://send?phone=' + entry.num + '&text=' + encodedMsg + '#Intent;package=' + pkg + ';scheme=whatsapp;end';
 
     const row = document.createElement('div');
     row.className = 'row ' + entry.status;
 
     const label = document.createElement('span');
     label.className = 'num';
-    label.textContent = (idx + 1) + '. ' + entry.num;
+    label.textContent = (idx + 1) + '.';
 
-    const group = document.createElement('div');
-    group.className = 'send-group';
-
-    // Normal WhatsApp (65)
-    const sendNormal = document.createElement('a');
-    sendNormal.href = 'intent://send?phone=' + phoneDigits + '&text=' + encodedMsg + '#Intent;package=com.whatsapp;scheme=whatsapp;end';
-    sendNormal.textContent = entry.status === 'sent' ? 'Sent' : '65';
-    sendNormal.onclick = function() {
+    const sendLink = document.createElement('a');
+    sendLink.href = url;
+    sendLink.textContent = entry.status === 'sent' ? 'Sent' : 'Send';
+    sendLink.onclick = function() {
       if (entry.status === 'pending') {
         entry.status = 'sent';
         saveData();
         render();
       }
     };
-
-    // WhatsApp Business (76)
-    const sendBiz = document.createElement('a');
-    sendBiz.className = 'business';
-    sendBiz.href = 'intent://send?phone=' + phoneDigits + '&text=' + encodedMsg + '#Intent;package=com.whatsapp.w4b;scheme=whatsapp;end';
-    sendBiz.textContent = entry.status === 'sent' ? 'Sent' : '76';
-    sendBiz.onclick = function() {
-      if (entry.status === 'pending') {
-        entry.status = 'sent';
-        saveData();
-        render();
-      }
-    };
-
-    if (entry.status === 'sent') {
-      group.appendChild(sendNormal);
-    } else {
-      group.appendChild(sendNormal);
-      group.appendChild(sendBiz);
-    }
 
     row.appendChild(label);
-    row.appendChild(group);
+    row.appendChild(sendLink);
     output.appendChild(row);
   });
 
@@ -244,15 +304,12 @@ function resetAll() {
   if (entries.length > 0 && !confirm('Sab list aur status delete ho jayega. Sure?')) return;
   entries = [];
   document.getElementById('numbers').value = '';
-  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(storageKey());
   document.getElementById('output').innerHTML = '';
   document.getElementById('stats').style.display = 'none';
 }
 
 document.getElementById('msg').addEventListener('input', saveData);
-
-loadData();
-render();
 </script>
 
 </body>
