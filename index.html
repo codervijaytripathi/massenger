@@ -3,230 +3,233 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Messenger</title>
+<title>WhatsApp Messenger</title>
+
 <style>
-  * { box-sizing: border-box; }
-  body {
-    font-family: Arial, sans-serif;
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 12px;
-    background: #f0f2f5;
-  }
-  h2 { text-align: center; margin: 10px 0 15px; color: #333; }
-  label { font-weight: bold; display: block; margin-top: 12px; margin-bottom: 5px; font-size: 14px; }
-  textarea {
-    width: 100%;
-    padding: 10px;
-    font-size: 15px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background: white;
-  }
-  .btnrow {
-    display: flex;
-    gap: 8px;
-    margin-top: 14px;
-  }
-  button {
-    flex: 1;
-    padding: 13px;
-    font-size: 15px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    color: white;
-    transition: opacity 0.2s;
-  }
-  button:active { opacity: 0.8; }
-  #addBtn { background: #2563eb; }
-  #clearBtn { background: #6b7280; }
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
 
-  .stats {
-    display: flex;
-    justify-content: space-between;
-    margin: 15px 0 8px;
-    font-size: 14px;
-    font-weight: bold;
-    gap: 6px;
-  }
-  .stats span { flex: 1; text-align: center; padding: 6px 4px; border-radius: 4px; }
-  .stat-orange { background: #fff3cd; color: #856404; }
-  .stat-green { background: #d4edda; color: #155724; }
+body{
+    background:#f4f4f4;
+    padding:20px;
+}
 
-  #output {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-top: 10px;
-  }
-  .row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 12px;
-    border-radius: 6px;
-    border: 1px solid #ddd;
-    font-size: 15px;
-    transition: background 0.2s;
-  }
-  .row.pending { background: #fff8e1; }
-  .row.sent { background: #d4edda; }
+.container{
+    max-width:700px;
+    margin:auto;
+    background:#fff;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
 
-  .row .num { font-family: monospace; font-weight: bold; }
-  .row a {
-    padding: 6px 14px;
-    border-radius: 4px;
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: bold;
-    background: #25D366;
-    color: white;
-  }
-  .row.sent a { background: #6c757d; pointer-events: none; }
+h1{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+label{
+    display:block;
+    font-size:18px;
+    font-weight:bold;
+    margin-top:15px;
+    margin-bottom:8px;
+}
+
+textarea{
+    width:100%;
+    padding:10px;
+    border:1px solid #ccc;
+    border-radius:8px;
+    resize:none;
+    font-size:16px;
+}
+
+#message{
+    height:120px;
+}
+
+#numbers{
+    height:120px;
+}
+
+.buttons{
+    display:flex;
+    gap:10px;
+    margin-top:15px;
+}
+
+button{
+    flex:1;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    color:#fff;
+    font-size:18px;
+    cursor:pointer;
+}
+
+.list-btn{
+    background:#2563eb;
+}
+
+.clear-btn{
+    background:#6b7280;
+}
+
+.status{
+    display:flex;
+    gap:10px;
+    margin-top:15px;
+}
+
+.status div{
+    flex:1;
+    padding:10px;
+    text-align:center;
+    border-radius:8px;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.pending{
+    background:#fef3c7;
+}
+
+.sent{
+    background:#d1fae5;
+}
+
+.item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px;
+    margin-top:10px;
+    background:#fefce8;
+    border-radius:8px;
+}
+
+.send-btn{
+    background:#22c55e;
+    width:100px;
+}
+
+select{
+    width:100%;
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    font-size:16px;
+}
 </style>
 </head>
 <body>
 
-<h2>Messenger</h2>
+<div class="container">
 
-<label for="msg">Message</label>
-<textarea id="msg" rows="5"></textarea>
+<h1>Messenger</h1>
 
-<label for="numbers">Numbers (ek line mein ek number)</label>
-<textarea id="numbers" rows="6" placeholder="9876543210
-9123456780
-9988776655"></textarea>
+<label>Message</label>
+<textarea id="message" placeholder="Message likho..."></textarea>
 
-<div class="btnrow">
-  <button id="addBtn" onclick="addNumbers()">List</button>
-  <button id="clearBtn" onclick="resetAll()">Clear</button>
+<label>Message bhejne wala Number</label>
+<select id="senderNumber">
+    <option value="7067305467">7067305467</option>
+    <option value="9203779980">9203779980</option>
+</select>
+
+<label>Numbers (ek line mein ek number)</label>
+<textarea id="numbers" placeholder="9876543210&#10;9123456780"></textarea>
+
+<div class="buttons">
+    <button class="list-btn" onclick="createList()">List</button>
+    <button class="clear-btn" onclick="clearAll()">Clear</button>
 </div>
 
-<div class="stats" id="stats" style="display:none;">
-  <span class="stat-orange" id="pendingCount">Pending: 0</span>
-  <span class="stat-green" id="sentCount">Sent: 0</span>
+<div class="status">
+    <div class="pending">Pending: <span id="pending">0</span></div>
+    <div class="sent">Sent: <span id="sent">0</span></div>
 </div>
 
-<div id="output"></div>
+<div id="listContainer"></div>
+
+</div>
 
 <script>
-const STORAGE_KEY = 'wa_bulk_sender_data_v1';
-let entries = [];
 
-function loadData() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const data = JSON.parse(saved);
-      entries = data.entries || [];
-      document.getElementById('msg').value = data.msg || '';
+let sentCount = 0;
+
+function createList(){
+
+    let numbers = document.getElementById("numbers")
+    .value
+    .split("\n")
+    .filter(n => n.trim() !== "");
+
+    document.getElementById("pending").innerText = numbers.length;
+
+    let container = document.getElementById("listContainer");
+    container.innerHTML = "";
+
+    numbers.forEach((num,index)=>{
+
+        let div = document.createElement("div");
+        div.className = "item";
+
+        div.innerHTML = `
+            <b>${index+1}. ${num}</b>
+            <button class="send-btn"
+            onclick="sendMessage('${num}',this)">
+            Send
+            </button>
+        `;
+
+        container.appendChild(div);
+    });
+}
+
+function sendMessage(number,btn){
+
+    let msg = document.getElementById("message").value;
+    let sender = document.getElementById("senderNumber").value;
+
+    if(msg.trim()==""){
+        alert("Pehle Message Likho");
+        return;
     }
-  } catch (e) {}
+
+    let whatsappURL =
+    `https://wa.me/91${number}?text=${encodeURIComponent(
+        "From: " + sender + "\n\n" + msg
+    )}`;
+
+    window.open(whatsappURL,"_blank");
+
+    btn.disabled = true;
+    btn.innerText = "Sent";
+
+    sentCount++;
+
+    let pending =
+    parseInt(document.getElementById("pending").innerText)-1;
+
+    document.getElementById("pending").innerText = pending;
+    document.getElementById("sent").innerText = sentCount;
 }
 
-function saveData() {
-  const data = {
-    entries: entries,
-    msg: document.getElementById('msg').value
-  };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+function clearAll(){
+    document.getElementById("message").value = "";
+    document.getElementById("numbers").value = "";
+    document.getElementById("listContainer").innerHTML = "";
+    document.getElementById("pending").innerText = "0";
+    document.getElementById("sent").innerText = "0";
+    sentCount = 0;
 }
-
-function addNumbers() {
-  const numbersRaw = document.getElementById('numbers').value;
-  const lines = numbersRaw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-
-  if (lines.length === 0) {
-    alert('Numbers daalo upar.');
-    return;
-  }
-
-  let added = 0;
-  lines.forEach(line => {
-    let num = line.replace(/[^0-9]/g, '');
-    if (num.length === 10) num = '91' + num;
-
-    const alreadyExists = entries.some(e => e.num === num);
-    if (!alreadyExists) {
-      entries.push({ num: num, status: 'pending' });
-      added++;
-    }
-  });
-
-  document.getElementById('numbers').value = '';
-  saveData();
-  render();
-
-  if (added < lines.length) {
-    alert(added + ' naye numbers jode gaye. ' + (lines.length - added) + ' already list mein the.');
-  }
-}
-
-function render() {
-  const msg = document.getElementById('msg').value.trim();
-  const output = document.getElementById('output');
-  output.innerHTML = '';
-
-  entries.forEach((entry, idx) => {
-    const url = 'https://wa.me/' + entry.num + '?text=' + encodeURIComponent(msg);
-
-    const row = document.createElement('div');
-    row.className = 'row ' + entry.status;
-
-    const label = document.createElement('span');
-    label.className = 'num';
-    label.textContent = (idx + 1) + '. ' + entry.num;
-
-    const sendLink = document.createElement('a');
-    sendLink.href = url;
-    sendLink.target = '_blank';
-    sendLink.textContent = entry.status === 'sent' ? 'Sent' : 'Send';
-    sendLink.onclick = function() {
-      if (entry.status === 'pending') {
-        entry.status = 'sent';
-        saveData();
-        render();
-      }
-    };
-
-    row.appendChild(label);
-    row.appendChild(sendLink);
-    output.appendChild(row);
-  });
-
-  updateStats();
-}
-
-function updateStats() {
-  const stats = document.getElementById('stats');
-  if (entries.length === 0) {
-    stats.style.display = 'none';
-    return;
-  }
-  stats.style.display = 'flex';
-
-  const pending = entries.filter(e => e.status === 'pending').length;
-  const sent = entries.filter(e => e.status === 'sent').length;
-
-  document.getElementById('pendingCount').textContent = 'Pending: ' + pending;
-  document.getElementById('sentCount').textContent = 'Sent: ' + sent;
-}
-
-function resetAll() {
-  if (entries.length > 0 && !confirm('Sab list aur status delete ho jayega. Sure?')) return;
-  entries = [];
-  document.getElementById('numbers').value = '';
-  localStorage.removeItem(STORAGE_KEY);
-  document.getElementById('output').innerHTML = '';
-  document.getElementById('stats').style.display = 'none';
-}
-
-document.getElementById('msg').addEventListener('input', saveData);
-
-loadData();
-render();
 </script>
 
 </body>
