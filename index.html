@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Massenger</title>
+<title>Messenger</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -13,7 +13,7 @@
     padding: 12px;
     background: #f0f2f5;
   }
-  h2 { text-align: center; margin: 10px 0 15px; }
+  h2 { text-align: center; margin: 10px 0 15px; color: #333; }
   label { font-weight: bold; display: block; margin-top: 12px; margin-bottom: 5px; font-size: 14px; }
   textarea {
     width: 100%;
@@ -21,24 +21,27 @@
     font-size: 15px;
     border: 1px solid #ccc;
     border-radius: 6px;
+    background: white;
   }
   .btnrow {
     display: flex;
     gap: 8px;
-    margin-top: 12px;
+    margin-top: 14px;
   }
   button {
     flex: 1;
-    padding: 12px;
+    padding: 13px;
     font-size: 15px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
     font-weight: bold;
     color: white;
+    transition: opacity 0.2s;
   }
-  #genBtn { background: #25D366; }
-  #resetBtn { background: #888; }
+  button:active { opacity: 0.8; }
+  #addBtn { background: #2563eb; }
+  #clearBtn { background: #6b7280; }
 
   .stats {
     display: flex;
@@ -46,19 +49,17 @@
     margin: 15px 0 8px;
     font-size: 14px;
     font-weight: bold;
+    gap: 6px;
   }
-  .stats span { padding: 4px 8px; border-radius: 4px; }
+  .stats span { flex: 1; text-align: center; padding: 6px 4px; border-radius: 4px; }
   .stat-orange { background: #fff3cd; color: #856404; }
   .stat-green { background: #d4edda; color: #155724; }
-  .stat-red { background: #f8d7da; color: #721c24; }
 
   #output {
     display: flex;
     flex-direction: column;
     gap: 6px;
     margin-top: 10px;
-    max-height: 60vh;
-    overflow-y: auto;
   }
   .row {
     display: flex;
@@ -72,58 +73,68 @@
   }
   .row.pending { background: #fff8e1; }
   .row.sent { background: #d4edda; }
-  .row.failed { background: #f8d7da; }
 
   .row .num { font-family: monospace; font-weight: bold; }
-  .row .actions { display: flex; gap: 6px; }
-  .row a, .row button.markfail {
-    padding: 6px 12px;
+  .row a {
+    padding: 6px 14px;
     border-radius: 4px;
     text-decoration: none;
     font-size: 13px;
     font-weight: bold;
-    border: none;
-    cursor: pointer;
+    background: #25D366;
+    color: white;
   }
-  .row a { background: #25D366; color: white; }
   .row.sent a { background: #6c757d; pointer-events: none; }
-  .row button.markfail { background: #dc3545; color: white; }
-  .row.failed button.markfail { background: #6c757d; pointer-events: none; }
-
-  .note { font-size: 12px; color: #777; margin-top: 12px; text-align: center; }
 </style>
 </head>
 <body>
 
-<h2>WhatsApp Bulk Sender</h2>
+<h2>Messenger</h2>
 
-<label for="msg">Message (har baar edit kar sakte ho)</label>
-<textarea id="msg" rows="5">Namaste, BSc/BCom/BCA ka result aa chuka hai. Form filling/supplementary form ke liye apply kare. Dhanyawad - MP Online</textarea>
+<label for="msg">Message</label>
+<textarea id="msg" rows="5"></textarea>
 
-<label for="numbers">Numbers (ek line mein ek number, 10-digit)</label>
-<textarea id="numbers" rows="8" placeholder="9876543210
+<label for="numbers">Numbers (ek line mein ek number)</label>
+<textarea id="numbers" rows="6" placeholder="9876543210
 9123456780
 9988776655"></textarea>
 
 <div class="btnrow">
-  <button id="genBtn" onclick="generateLinks()">List Banao</button>
-  <button id="resetBtn" onclick="resetAll()">Reset</button>
+  <button id="addBtn" onclick="addNumbers()">List</button>
+  <button id="clearBtn" onclick="resetAll()">Clear</button>
 </div>
 
 <div class="stats" id="stats" style="display:none;">
   <span class="stat-orange" id="pendingCount">Pending: 0</span>
   <span class="stat-green" id="sentCount">Sent: 0</span>
-  <span class="stat-red" id="failedCount">Failed: 0</span>
 </div>
 
 <div id="output"></div>
 
-<p class="note">Send pe tap karo → WhatsApp khulega, message likha milega → Enter dabao → wapas aao to wo row green ho jayega. Agar WhatsApp na chale to "Fail" dabao, row red ho jayega.</p>
-
 <script>
+const STORAGE_KEY = 'wa_bulk_sender_data_v1';
 let entries = [];
 
-function generateLinks() {
+function loadData() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const data = JSON.parse(saved);
+      entries = data.entries || [];
+      document.getElementById('msg').value = data.msg || '';
+    }
+  } catch (e) {}
+}
+
+function saveData() {
+  const data = {
+    entries: entries,
+    msg: document.getElementById('msg').value
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function addNumbers() {
   const numbersRaw = document.getElementById('numbers').value;
   const lines = numbersRaw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
 
@@ -132,13 +143,25 @@ function generateLinks() {
     return;
   }
 
-  entries = lines.map(line => {
+  let added = 0;
+  lines.forEach(line => {
     let num = line.replace(/[^0-9]/g, '');
     if (num.length === 10) num = '91' + num;
-    return { num: num, status: 'pending' };
+
+    const alreadyExists = entries.some(e => e.num === num);
+    if (!alreadyExists) {
+      entries.push({ num: num, status: 'pending' });
+      added++;
+    }
   });
 
+  document.getElementById('numbers').value = '';
+  saveData();
   render();
+
+  if (added < lines.length) {
+    alert(added + ' naye numbers jode gaye. ' + (lines.length - added) + ' already list mein the.');
+  }
 }
 
 function render() {
@@ -156,9 +179,6 @@ function render() {
     label.className = 'num';
     label.textContent = (idx + 1) + '. ' + entry.num;
 
-    const actions = document.createElement('div');
-    actions.className = 'actions';
-
     const sendLink = document.createElement('a');
     sendLink.href = url;
     sendLink.target = '_blank';
@@ -166,27 +186,13 @@ function render() {
     sendLink.onclick = function() {
       if (entry.status === 'pending') {
         entry.status = 'sent';
+        saveData();
         render();
-        updateStats();
       }
     };
-
-    const failBtn = document.createElement('button');
-    failBtn.className = 'markfail';
-    failBtn.textContent = entry.status === 'failed' ? 'Failed' : 'Fail';
-    failBtn.onclick = function() {
-      if (entry.status !== 'sent') {
-        entry.status = entry.status === 'failed' ? 'pending' : 'failed';
-        render();
-        updateStats();
-      }
-    };
-
-    actions.appendChild(sendLink);
-    actions.appendChild(failBtn);
 
     row.appendChild(label);
-    row.appendChild(actions);
+    row.appendChild(sendLink);
     output.appendChild(row);
   });
 
@@ -203,19 +209,24 @@ function updateStats() {
 
   const pending = entries.filter(e => e.status === 'pending').length;
   const sent = entries.filter(e => e.status === 'sent').length;
-  const failed = entries.filter(e => e.status === 'failed').length;
 
   document.getElementById('pendingCount').textContent = 'Pending: ' + pending;
   document.getElementById('sentCount').textContent = 'Sent: ' + sent;
-  document.getElementById('failedCount').textContent = 'Failed: ' + failed;
 }
 
 function resetAll() {
-  if (entries.length > 0 && !confirm('Sab status reset ho jayega. Sure?')) return;
+  if (entries.length > 0 && !confirm('Sab list aur status delete ho jayega. Sure?')) return;
   entries = [];
+  document.getElementById('numbers').value = '';
+  localStorage.removeItem(STORAGE_KEY);
   document.getElementById('output').innerHTML = '';
   document.getElementById('stats').style.display = 'none';
 }
+
+document.getElementById('msg').addEventListener('input', saveData);
+
+loadData();
+render();
 </script>
 
 </body>
