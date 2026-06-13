@@ -1,659 +1,222 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rajbhog Restaurant - Authentic Indian Dining in Shahdol</title>
-    
-    <!-- Google Fonts for Premium Typography -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WhatsApp Bulk Sender</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 12px;
+    background: #f0f2f5;
+  }
+  h2 { text-align: center; margin: 10px 0 15px; }
+  label { font-weight: bold; display: block; margin-top: 12px; margin-bottom: 5px; font-size: 14px; }
+  textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+  .btnrow {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  button {
+    flex: 1;
+    padding: 12px;
+    font-size: 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+  }
+  #genBtn { background: #25D366; }
+  #resetBtn { background: #888; }
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        cream: '#FFFDF5',
-                        maroon: '#800000',
-                        maroonLight: '#a31515',
-                        gold: '#D4AF37',
-                        goldLight: '#F3E5AB',
-                        dark: '#111111'
-                    },
-                    fontFamily: {
-                        serif: ['"Playfair Display"', 'serif'],
-                        sans: ['"Poppins"', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        'glow': '0 0 20px rgba(212, 175, 55, 0.4)',
-                        'glow-maroon': '0 0 20px rgba(128, 0, 0, 0.4)',
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <style>
-        /* Custom UI Effects */
-        .glass-premium {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-        }
-        
-        .hero-gradient {
-            background: linear-gradient(to top, rgba(17,17,17,1) 0%, rgba(17,17,17,0.4) 50%, rgba(0,0,0,0.1) 100%);
-        }
+  .stats {
+    display: flex;
+    justify-content: space-between;
+    margin: 15px 0 8px;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  .stats span { padding: 4px 8px; border-radius: 4px; }
+  .stat-orange { background: #fff3cd; color: #856404; }
+  .stat-green { background: #d4edda; color: #155724; }
+  .stat-red { background: #f8d7da; color: #721c24; }
 
-        /* Scroll Animations (Ekdam Jhakkas Effect) */
-        .reveal {
-            opacity: 0;
-            transform: translateY(40px);
-            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
-        }
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
+  #output {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 10px;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    font-size: 15px;
+    transition: background 0.2s;
+  }
+  .row.pending { background: #fff8e1; }
+  .row.sent { background: #d4edda; }
+  .row.failed { background: #f8d7da; }
 
-        /* Nav Blur Effect */
-        .nav-scrolled {
-            background-color: rgba(255, 253, 245, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 2px solid #D4AF37;
-            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
-        }
+  .row .num { font-family: monospace; font-weight: bold; }
+  .row .actions { display: flex; gap: 6px; }
+  .row a, .row button.markfail {
+    padding: 6px 12px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+  }
+  .row a { background: #25D366; color: white; }
+  .row.sent a { background: #6c757d; pointer-events: none; }
+  .row button.markfail { background: #dc3545; color: white; }
+  .row.failed button.markfail { background: #6c757d; pointer-events: none; }
 
-        /* Smooth Image Hover */
-        .img-hover-zoom {
-            transition: transform 0.7s ease;
-        }
-        .group:hover .img-hover-zoom {
-            transform: scale(1.1);
-        }
-    </style>
+  .note { font-size: 12px; color: #777; margin-top: 12px; text-align: center; }
+</style>
 </head>
-<body class="bg-cream text-dark font-sans antialiased overflow-x-hidden selection:bg-gold selection:text-maroon">
+<body>
 
-    <!-- --- Navigation Bar (Fixed & Stylish) --- -->
-    <nav id="navbar" class="fixed w-full z-50 transition-all duration-500 py-5 bg-transparent">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center">
-                <!-- Logo -->
-                <a href="#home" class="flex items-center cursor-pointer decoration-transparent group">
-                    <h1 class="text-3xl md:text-4xl font-serif font-black tracking-widest text-maroon transition-transform group-hover:scale-105">
-                        RAJBHOG
-                        <span class="block text-xs font-sans tracking-[0.3em] uppercase mt-1 text-gold font-semibold">
-                            Restaurant
-                        </span>
-                    </h1>
-                </a>
+<h2>WhatsApp Bulk Sender</h2>
 
-                <!-- Desktop Menu -->
-                <div class="hidden md:flex space-x-8 items-center">
-                    <a href="#home" class="text-sm font-semibold tracking-wider hover:text-gold transition-colors duration-300 text-maroon uppercase">Home</a>
-                    <a href="#about" class="text-sm font-semibold tracking-wider hover:text-gold transition-colors duration-300 text-maroon uppercase">About</a>
-                    <a href="#menu" class="text-sm font-semibold tracking-wider hover:text-gold transition-colors duration-300 text-maroon uppercase">Menu</a>
-                    <a href="#gallery" class="text-sm font-semibold tracking-wider hover:text-gold transition-colors duration-300 text-maroon uppercase">Gallery</a>
-                    <a href="#reviews" class="text-sm font-semibold tracking-wider hover:text-gold transition-colors duration-300 text-maroon uppercase">Reviews</a>
-                    <a href="#contact" class="text-sm font-semibold tracking-wider hover:text-gold transition-colors duration-300 text-maroon uppercase">Contact</a>
-                    <a href="#contact" class="px-7 py-3 rounded-full font-bold transition-all duration-300 bg-maroon text-cream hover:bg-maroonLight hover:shadow-glow-maroon hover:-translate-y-1">
-                        Order Online
-                    </a>
-                </div>
+<label for="msg">Message (har baar edit kar sakte ho)</label>
+<textarea id="msg" rows="5">Namaste, BSc/BCom/BCA ka result aa chuka hai. Form filling/supplementary form ke liye apply kare. Dhanyawad - MP Online</textarea>
 
-                <!-- Mobile Menu Button -->
-                <div class="md:hidden flex items-center">
-                    <button id="mobile-menu-btn" class="text-maroon focus:outline-none bg-cream/80 p-2 rounded-lg backdrop-blur-sm">
-                        <i data-lucide="menu" id="menu-icon-open" class="w-8 h-8"></i>
-                        <i data-lucide="x" id="menu-icon-close" class="w-8 h-8 hidden"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
+<label for="numbers">Numbers (ek line mein ek number, 10-digit)</label>
+<textarea id="numbers" rows="8" placeholder="9876543210
+9123456780
+9988776655"></textarea>
 
-        <!-- Mobile Menu Dropdown (Slide Down Effect) -->
-        <div id="mobile-menu" class="hidden md:hidden absolute w-full shadow-2xl border-t border-gold/30 bg-cream/95 backdrop-blur-md transition-all">
-            <div class="px-6 pt-4 pb-8 space-y-3 flex flex-col">
-                <a href="#home" class="mobile-link block py-3 text-lg font-semibold border-b border-gray-200 text-maroon">Home</a>
-                <a href="#about" class="mobile-link block py-3 text-lg font-semibold border-b border-gray-200 text-maroon">About</a>
-                <a href="#menu" class="mobile-link block py-3 text-lg font-semibold border-b border-gray-200 text-maroon">Menu</a>
-                <a href="#gallery" class="mobile-link block py-3 text-lg font-semibold border-b border-gray-200 text-maroon">Gallery</a>
-                <a href="#reviews" class="mobile-link block py-3 text-lg font-semibold border-b border-gray-200 text-maroon">Reviews</a>
-                <a href="#contact" class="mobile-link block py-3 text-lg font-semibold border-b border-gray-200 text-maroon">Contact</a>
-                <a href="#contact" class="mobile-link block mt-6 text-center px-6 py-4 rounded-full font-bold shadow-lg bg-gold text-maroon hover:shadow-glow active:scale-95 transition-all">
-                    Order Online
-                </a>
-            </div>
-        </div>
-    </nav>
+<div class="btnrow">
+  <button id="genBtn" onclick="generateLinks()">List Banao</button>
+  <button id="resetBtn" onclick="resetAll()">Reset</button>
+</div>
 
-    <!-- --- Floating WhatsApp Button (Pulsing Effect) --- -->
-    <a href="https://wa.me/919876543210" target="_blank" rel="noreferrer" 
-       class="fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center group animate-bounce"
-       style="background-color: #25D366; color: white;" title="Order via WhatsApp">
-        <i data-lucide="message-circle" class="w-8 h-8 group-hover:animate-pulse"></i>
-    </a>
+<div class="stats" id="stats" style="display:none;">
+  <span class="stat-orange" id="pendingCount">Pending: 0</span>
+  <span class="stat-green" id="sentCount">Sent: 0</span>
+  <span class="stat-red" id="failedCount">Failed: 0</span>
+</div>
 
-    <!-- --- Hero Section (Heavy Parallax & Gradient) --- -->
-    <section id="home" class="relative pt-32 pb-20 lg:pt-0 lg:pb-0 lg:h-screen flex items-center justify-center overflow-hidden">
-        <div class="absolute inset-0 z-0">
-            <img src="https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=1920&q=80" 
-                 alt="Indian Food Spread" class="w-full h-full object-cover" />
-            <div class="absolute inset-0 hero-gradient"></div>
-        </div>
-        
-        <div class="relative z-10 text-center px-4 max-w-5xl mx-auto mt-16 lg:mt-0 reveal">
-            <span class="inline-flex items-center gap-2 py-1.5 px-4 rounded-full text-sm font-bold mb-6 border border-gold/50 bg-black/30 backdrop-blur-sm text-goldLight uppercase tracking-widest">
-                <i data-lucide="sparkles" class="w-4 h-4 text-gold"></i> Welcome to Shahdol's Finest
-            </span>
-            <h2 class="text-5xl md:text-7xl lg:text-8xl font-serif font-black text-white mb-6 leading-[1.1] drop-shadow-2xl">
-                Authentic Royal Dining in <span class="text-transparent bg-clip-text bg-gradient-to-r from-gold to-goldLight">Shahdol</span>
-            </h2>
-            <p class="text-lg md:text-2xl text-gray-200 mb-12 max-w-3xl mx-auto font-light leading-relaxed">
-                Experience the majestic flavors of India with our expertly crafted thalis, sizzling starters, and rich curries.
-            </p>
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
-                <a href="#menu" class="w-full sm:w-auto px-10 py-4 rounded-full font-bold text-lg transition-all duration-300 bg-gold text-maroon hover:shadow-glow hover:-translate-y-1">
-                    Explore Menu
-                </a>
-                <a href="https://wa.me/919876543210" class="w-full sm:w-auto px-10 py-4 rounded-full font-bold text-lg transition-all duration-300 border-2 border-white/50 text-white flex items-center justify-center gap-3 glass-premium hover:bg-white/10 hover:-translate-y-1">
-                    <i data-lucide="phone-call" class="w-5 h-5"></i> Book a Table
-                </a>
-            </div>
-        </div>
-    </section>
+<div id="output"></div>
 
-    <!-- --- About Us Section (Elegant Layout) --- -->
-    <section id="about" class="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
-        <div class="flex flex-col lg:flex-row gap-16 items-center reveal">
-            <!-- Image Side with Offset Border -->
-            <div class="lg:w-1/2 relative w-full group">
-                <div class="absolute inset-0 translate-x-6 translate-y-6 rounded-3xl bg-maroon/10 border-2 border-gold transition-transform duration-500 group-hover:translate-x-4 group-hover:translate-y-4"></div>
-                <img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=800&q=80" 
-                     alt="Restaurant Interior" class="relative z-10 w-full h-[500px] rounded-3xl shadow-2xl object-cover transition-transform duration-700" />
-            </div>
-            
-            <!-- Text Content -->
-            <div class="lg:w-1/2 space-y-8">
-                <div>
-                    <h3 class="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.2em] text-gold mb-3">
-                        <span class="w-8 h-0.5 bg-gold block"></span> Our Story
-                    </h3>
-                    <h2 class="text-4xl md:text-5xl font-serif font-black text-maroon leading-tight">
-                        A Royal Feast For <br/>Every Guest
-                    </h2>
-                </div>
-                <p class="text-lg text-gray-600 leading-relaxed font-light">
-                    <strong>Rajbhog Restaurant</strong> is a premium local dining destination known for fresh, authentic Indian cuisine. We take pride in offering excellent service and a highly comfortable atmosphere perfect for families, couples, and visitors alike.
-                </p>
-                <div class="bg-white p-6 rounded-2xl shadow-xl border-l-4 border-gold">
-                    <p class="text-lg text-dark font-medium leading-relaxed italic">
-                        "Conveniently located near New Bus Stand, Balpurwa, we are Shahdol's top choice for both grand celebrations and everyday cravings."
-                    </p>
-                </div>
-                <a href="#contact" class="inline-flex items-center gap-2 font-bold text-lg mt-4 text-maroon hover:text-gold transition-colors group">
-                    Visit Us Today <i data-lucide="arrow-right" class="w-6 h-6 transform transition-transform group-hover:translate-x-2"></i>
-                </a>
-            </div>
-        </div>
-    </section>
+<p class="note">Send pe tap karo → WhatsApp khulega, message likha milega → Enter dabao → wapas aao to wo row green ho jayega. Agar WhatsApp na chale to "Fail" dabao, row red ho jayega.</p>
 
-    <!-- --- Menu Section (Interactive & Solid UI) --- -->
-    <section id="menu" class="py-24 px-4 sm:px-6 lg:px-8 relative" style="background-color: #FDFBF4;">
-        <!-- Background Pattern (Subtle) -->
-        <div class="absolute inset-0 opacity-5 pointer-events-none" style="background-image: radial-gradient(#800000 1px, transparent 1px); background-size: 30px 30px;"></div>
-        
-        <div class="max-w-7xl mx-auto relative z-10">
-            <div class="text-center mb-16 reveal">
-                <h3 class="text-sm font-bold uppercase tracking-[0.2em] mb-3 text-gold">Discover</h3>
-                <h2 class="text-4xl md:text-6xl font-serif font-black text-maroon drop-shadow-sm">Our Signature Menu</h2>
-                <div class="w-24 h-1.5 mx-auto mt-6 bg-gold rounded-full"></div>
-            </div>
+<script>
+let entries = [];
 
-            <!-- Menu Categories (Pill UI) -->
-            <div id="category-buttons" class="flex flex-wrap justify-center gap-3 md:gap-5 mb-16 reveal">
-                <!-- JS Inject Karega -->
-            </div>
+function generateLinks() {
+  const numbersRaw = document.getElementById('numbers').value;
+  const lines = numbersRaw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
 
-            <!-- Menu Items Grid -->
-            <div id="menu-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                <!-- JS Inject Karega -->
-            </div>
-        </div>
-    </section>
+  if (lines.length === 0) {
+    alert('Numbers daalo upar.');
+    return;
+  }
 
-    <!-- --- Gallery Section (Hover Effects & Masonry Feel) --- -->
-    <section id="gallery" class="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div class="text-center mb-16 reveal">
-            <h3 class="text-sm font-bold uppercase tracking-[0.2em] mb-3 text-gold">Visuals</h3>
-            <h2 class="text-4xl md:text-6xl font-serif font-black text-maroon">Restaurant Gallery</h2>
-            <div class="w-24 h-1.5 mx-auto mt-6 bg-maroon rounded-full"></div>
-        </div>
-        
-        <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 reveal">
-            <!-- JS Inject Karega -->
-        </div>
-    </section>
+  entries = lines.map(line => {
+    let num = line.replace(/[^0-9]/g, '');
+    if (num.length === 10) num = '91' + num;
+    return { num: num, status: 'pending' };
+  });
 
-    <!-- --- Reviews Section (Dark Premium Glassmorphism) --- -->
-    <section id="reviews" class="py-24 text-white relative overflow-hidden bg-gradient-to-br from-[#4a0000] via-maroon to-[#600000]">
-        <!-- Decorative Circle -->
-        <div class="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-gold rounded-full opacity-10 blur-3xl"></div>
-        <div class="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-white rounded-full opacity-5 blur-3xl"></div>
+  render();
+}
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 reveal">
-            <div class="flex flex-col items-center justify-center mb-16">
-                <h2 class="text-5xl md:text-6xl font-serif font-black mb-6 text-white drop-shadow-lg">Loved by Shahdol</h2>
-                <div class="flex items-center gap-3 mb-4 bg-black/20 px-6 py-3 rounded-full backdrop-blur-sm border border-white/10">
-                    <i data-lucide="star" class="w-8 h-8 fill-gold text-gold drop-shadow-glow"></i>
-                    <i data-lucide="star" class="w-8 h-8 fill-gold text-gold drop-shadow-glow"></i>
-                    <i data-lucide="star" class="w-8 h-8 fill-gold text-gold drop-shadow-glow"></i>
-                    <i data-lucide="star" class="w-8 h-8 fill-gold text-gold drop-shadow-glow"></i>
-                    <div class="relative">
-                       <i data-lucide="star" class="w-8 h-8 text-gold"></i>
-                       <div class="absolute top-0 left-0 w-1/2 overflow-hidden">
-                           <i data-lucide="star" class="w-8 h-8 fill-gold text-gold drop-shadow-glow"></i>
-                       </div>
-                    </div>
-                    <span class="text-3xl font-black text-goldLight ml-2">4.5</span>
-                </div>
-                <p class="text-xl opacity-90 font-light">Based on <span class="font-bold text-2xl text-goldLight">1.7k+</span> reviews on Google & Justdial</p>
-            </div>
+function render() {
+  const msg = document.getElementById('msg').value.trim();
+  const output = document.getElementById('output');
+  output.innerHTML = '';
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-                <!-- Review Card 1 -->
-                <div class="p-8 rounded-3xl glass-premium transform transition hover:-translate-y-2">
-                    <div class="flex gap-1 mb-6">
-                        <i data-lucide="star" class="w-5 h-5 fill-gold text-gold"></i>
-                        <i data-lucide="star" class="w-5 h-5 fill-gold text-gold"></i>
-                        <i data-lucide="star" class="w-5 h-5 fill-gold text-gold"></i>
-                        <i data-lucide="star" class="w-5 h-5 fill-gold text-gold"></i>
-                        <i data-lucide="star" class="w-5 h-5 fill-gold text-gold"></i>
-                    </div>
-                    <p class="italic text-gray-200 mb-8 text-lg font-light leading-relaxed">"The best authentic Indian food in Balpurwa! The Maharaja Thali is a must-try. Ambience is great for families."</p>
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center text-gold font-bold text-xl border border-gold/50">R</div>
-                        <p class="font-bold text-goldLight tracking-wider">Rahul Tiwari</p>
-                    </div>
-                </div>
-                <!-- Review Card 2 -->
-                <div class="p-8 rounded-3xl glass-premium transform transition hover:-translate-y-2 md:-translate-y-6">
-                    <div class="flex gap-1 mb-6">
-                        <i data-lucide="star" class="w-5 h-5 fill-gold text-gold"></i>
-                        <i data-lucide="star" class="w-5 h-5 fill-gold text-gold"></i>
-                        <i data-lucide="star" class="w-5 h-5 fill-gold text-gold"></i>
-                        <i data-lucide="star" class="w-5 h-5 fill-gold text-gold"></i>
-                        <i data-lucide="star" class="w-5 h-5 fill-gold text-gold"></i>
-                    </div>
-                    <p class="italic text-gray-200 mb-8 text-lg font-light leading-relaxed">"Clean, comfortable seating and prompt service. We visit every weekend. Paneer Butter Masala here is excellent."</p>
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center text-gold font-bold text-xl border border-gold/50">P</div>
-                        <p class="font-bold text-goldLight tracking-wider">Priya Soni</p>
-                    </div>
-                </div>
-                <!-- Review Card 3 -->
-                <div class="p-8 rounded-3xl glass-premium transform transition hover:-translate-y-2">
-                    <div class="flex gap-1 mb-6">
-                        <i data-lucide="star" class="w-5 h-5 fill-gold text-gold"></i>
-                        <i data-lucide="star" class="w-5 h-5 fill-gold text-gold"></i>
-                        <i data-lucide="star" class="w-5 h-5 fill-gold text-gold"></i>
-                        <i data-lucide="star" class="w-5 h-5 fill-gold text-gold"></i>
-                        <i data-lucide="star" class="w-5 h-5 fill-gold text-gold"></i>
-                    </div>
-                    <p class="italic text-gray-200 mb-8 text-lg font-light leading-relaxed">"Located conveniently near the bus stand. High-quality food at reasonable prices. Highly recommended!"</p>
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center text-gold font-bold text-xl border border-gold/50">A</div>
-                        <p class="font-bold text-goldLight tracking-wider">Amit Sharma</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+  entries.forEach((entry, idx) => {
+    const url = 'https://wa.me/' + entry.num + '?text=' + encodeURIComponent(msg);
 
-    <!-- --- Contact & Info Section (Map & Details) --- -->
-    <section id="contact" class="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto reveal">
-        <div class="grid grid-cols-1 lg:grid-cols-2 bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-gray-100">
-            
-            <!-- Info Side -->
-            <div class="p-10 md:p-16 bg-cream flex flex-col justify-center">
-                <h2 class="text-4xl md:text-5xl font-serif font-black mb-10 text-maroon">Visit Us / Order Now</h2>
-                
-                <div class="space-y-10">
-                    <div class="flex items-start gap-6 group">
-                        <div class="p-4 rounded-2xl bg-maroon/10 text-maroon transition-colors group-hover:bg-maroon group-hover:text-cream">
-                            <i data-lucide="map-pin" class="w-7 h-7"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-xl text-dark mb-2">Location</h4>
-                            <p class="text-gray-600 text-lg leading-relaxed">
-                                Near New Bus Stand, Banganga Road,<br/>
-                                Balpurwa, Shahdol<br/>
-                                Madhya Pradesh – 484001
-                            </p>
-                            <a href="https://maps.google.com/?q=Rajbhog+Restaurant+Shahdol+Madhya+Pradesh" target="_blank" rel="noreferrer" class="inline-flex items-center gap-2 text-base font-bold mt-3 text-maroon hover:text-gold transition-colors">
-                                Get Directions <i data-lucide="external-link" class="w-4 h-4"></i>
-                            </a>
-                        </div>
-                    </div>
+    const row = document.createElement('div');
+    row.className = 'row ' + entry.status;
 
-                    <div class="flex items-start gap-6 group">
-                        <div class="p-4 rounded-2xl bg-maroon/10 text-maroon transition-colors group-hover:bg-maroon group-hover:text-cream">
-                            <i data-lucide="clock" class="w-7 h-7"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-xl text-dark mb-2">Opening Hours</h4>
-                            <p class="text-gray-600 text-lg">Open All Days of the Week</p>
-                            <p class="font-black text-2xl mt-2 text-maroon">10:00 AM – 11:00 PM</p>
-                        </div>
-                    </div>
+    const label = document.createElement('span');
+    label.className = 'num';
+    label.textContent = (idx + 1) + '. ' + entry.num;
 
-                    <div class="flex items-start gap-6 group">
-                        <div class="p-4 rounded-2xl bg-maroon/10 text-maroon transition-colors group-hover:bg-maroon group-hover:text-cream">
-                            <i data-lucide="phone" class="w-7 h-7"></i>
-                        </div>
-                        <div class="w-full">
-                            <h4 class="font-bold text-xl text-dark mb-2">Contact</h4>
-                            <p class="text-gray-600 text-lg mb-4">For reservations, parties, or pickup:</p>
-                            <div class="flex flex-col sm:flex-row gap-4">
-                                <a href="tel:+919876543210" class="flex-1 py-3 rounded-xl font-bold text-center text-cream transition-all hover:-translate-y-1 hover:shadow-glow-maroon bg-maroon flex items-center justify-center gap-2">
-                                    <i data-lucide="phone-call" class="w-5 h-5"></i> Call Now
-                                </a>
-                                <a href="https://wa.me/919876543210" target="_blank" rel="noreferrer" class="flex-1 py-3 rounded-xl font-bold text-center text-white transition-all hover:-translate-y-1 shadow-lg bg-[#25D366] hover:bg-[#20b858] flex items-center justify-center gap-2">
-                                    <i data-lucide="message-circle" class="w-5 h-5"></i> WhatsApp
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    const actions = document.createElement('div');
+    actions.className = 'actions';
 
-            <!-- Map Side -->
-            <div class="min-h-[400px] lg:min-h-full w-full bg-gray-200 relative">
-                <iframe 
-                    title="Rajbhog Restaurant Map"
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3648.172534571744!2d81.3537243!3d23.2981156!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3987be7b5c0106cd%3A0xc348508f7605d8f2!2sShahdol%2C%20Madhya%20Pradesh!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin" 
-                    width="100%" height="100%" class="absolute inset-0 border-0" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
-                </iframe>
-            </div>
-        </div>
-    </section>
+    const sendLink = document.createElement('a');
+    sendLink.href = url;
+    sendLink.target = '_blank';
+    sendLink.textContent = entry.status === 'sent' ? 'Sent' : 'Send';
+    sendLink.onclick = function() {
+      if (entry.status === 'pending') {
+        entry.status = 'sent';
+        render();
+        updateStats();
+      }
+    };
 
-    <!-- --- Footer (Heavy & Structured) --- -->
-    <footer class="text-white pt-20 pb-8 bg-dark border-t-4 border-gold">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
-                <!-- Brand Col -->
-                <div class="md:col-span-5">
-                    <h2 class="text-3xl font-serif font-black mb-6 text-gold tracking-widest">RAJBHOG</h2>
-                    <p class="text-gray-400 mb-8 text-lg font-light leading-relaxed pr-8">
-                        Authentic Indian Dining in the heart of Shahdol. A perfect blend of rich taste, cultural tradition, and royal hospitality that leaves you craving for more.
-                    </p>
-                    <div class="flex gap-4">
-                        <a href="#" class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-gold hover:text-maroon transition-all duration-300 hover:-translate-y-1">
-                            <i data-lucide="facebook" class="w-5 h-5"></i>
-                        </a>
-                        <a href="#" class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-gold hover:text-maroon transition-all duration-300 hover:-translate-y-1">
-                            <i data-lucide="instagram" class="w-5 h-5"></i>
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- Links Col -->
-                <div class="md:col-span-3">
-                    <h4 class="text-xl font-bold mb-6 text-white tracking-wider">Quick Links</h4>
-                    <ul class="space-y-4 text-gray-400">
-                        <li><a href="#home" class="hover:text-gold transition-colors inline-block transform hover:translate-x-2 duration-300">Home</a></li>
-                        <li><a href="#about" class="hover:text-gold transition-colors inline-block transform hover:translate-x-2 duration-300">About Us</a></li>
-                        <li><a href="#menu" class="hover:text-gold transition-colors inline-block transform hover:translate-x-2 duration-300">Our Menu</a></li>
-                        <li><a href="#gallery" class="hover:text-gold transition-colors inline-block transform hover:translate-x-2 duration-300">Gallery</a></li>
-                    </ul>
-                </div>
+    const failBtn = document.createElement('button');
+    failBtn.className = 'markfail';
+    failBtn.textContent = entry.status === 'failed' ? 'Failed' : 'Fail';
+    failBtn.onclick = function() {
+      if (entry.status !== 'sent') {
+        entry.status = entry.status === 'failed' ? 'pending' : 'failed';
+        render();
+        updateStats();
+      }
+    };
 
-                <!-- Info Col -->
-                <div class="md:col-span-4">
-                    <h4 class="text-xl font-bold mb-6 text-white tracking-wider">Find Us</h4>
-                    <div class="space-y-4 text-gray-400 font-light">
-                        <p class="flex items-start gap-3">
-                            <i data-lucide="map-pin" class="w-5 h-5 text-gold shrink-0 mt-1"></i>
-                            <span>Near New Bus Stand, Banganga Road, Balpurwa, Shahdol, MP – 484001</span>
-                        </p>
-                        <p class="flex items-center gap-3">
-                            <i data-lucide="clock" class="w-5 h-5 text-gold shrink-0"></i>
-                            <span>10:00 AM - 11:00 PM (Daily)</span>
-                        </p>
-                        <p class="flex items-center gap-3">
-                            <i data-lucide="phone" class="w-5 h-5 text-gold shrink-0"></i>
-                            <span>+91 98765 43210</span>
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Copyright Bar -->
-            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 font-light">
-                <p>&copy; <span id="year"></span> Rajbhog Restaurant, Shahdol. All Rights Reserved.</p>
-                <p class="mt-2 md:mt-0">Designed with ❤️ for Food Lovers</p>
-            </div>
-        </div>
-    </footer>
+    actions.appendChild(sendLink);
+    actions.appendChild(failBtn);
 
-    <!-- --- Application Logic (JS) --- -->
-    <script>
-        // Update Year
-        document.getElementById('year').textContent = new Date().getFullYear();
+    row.appendChild(label);
+    row.appendChild(actions);
+    output.appendChild(row);
+  });
 
-        // --- Data Constants ---
-        const MENU_DATA = {
-            'Thalis': [
-                { name: 'Standard Thali', price: '150', desc: 'Dal, Seasonal Veg, Rice, 4 Roti, Salad, Papad', image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=600&q=80' },
-                { name: 'Deluxe Thali', price: '220', desc: 'Dal Makhani, Paneer Sabzi, Mix Veg, Jeera Rice, 2 Butter Naan, Sweet, Salad', image: 'https://images.unsplash.com/photo-1626776876729-bab4369a5a5a?auto=format&fit=crop&w=600&q=80' },
-                { name: 'Maharaja Thali', price: '350', desc: 'Special Paneer, Dal Makhani, 2 Veg Sabzi, Pulao, Assorted Breads, 2 Sweets, Raita, Salad, Papad', image: 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?auto=format&fit=crop&w=600&q=80' },
-            ],
-            'Combos': [
-                { name: 'Veg Combo', price: '180', desc: 'Mix Veg + Dal Fry + 3 Butter Roti + Salad', image: null },
-                { name: 'Paneer Combo', price: '200', desc: 'Paneer Butter Masala + 2 Butter Naan + Salad', image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc0?auto=format&fit=crop&w=600&q=80' },
-                { name: 'Chinese Combo', price: '190', desc: 'Veg Noodles + Manchurian Gravy', image: null },
-            ],
-            'Starters': [
-                { name: 'Paneer Tikka', price: '220', desc: 'Classic tandoori marinated paneer cubes', image: 'https://images.unsplash.com/photo-1599487405609-56508c9d0d36?auto=format&fit=crop&w=600&q=80' },
-                { name: 'Veg Manchurian', price: '160', desc: 'Crispy veg balls in spicy dark soy sauce', image: null },
-                { name: 'Hara Bhara Kabab', price: '180', desc: 'Spinach and green peas patties', image: null },
-                { name: 'Crispy Corn', price: '150', desc: 'Deep-fried corn kernels tossed in spices', image: null },
-            ],
-            'Main Course': [
-                { name: 'Paneer Butter Masala', price: '240', desc: 'Rich and creamy tomato-based gravy', image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc0?auto=format&fit=crop&w=600&q=80' },
-                { name: 'Kadhai Paneer', price: '230', desc: 'Paneer cooked with bell peppers and whole spices', image: null },
-                { name: 'Dal Makhani', price: '180', desc: 'Overnight slow-cooked black lentils', image: 'https://images.unsplash.com/photo-1546833998-877b37c2e5c4?auto=format&fit=crop&w=600&q=80' },
-                { name: 'Malai Kofta', price: '250', desc: 'Cottage cheese dumplings in sweet creamy gravy', image: null },
-            ],
-            'Breads & Rice': [
-                { name: 'Jeera Rice', price: '110', desc: 'Basmati rice tempered with cumin seeds', image: null },
-                { name: 'Veg Pulao', price: '140', desc: 'Fragrant rice cooked with mixed vegetables', image: null },
-                { name: 'Butter Naan', price: '45', desc: 'Soft tandoori bread brushed with butter', image: null },
-                { name: 'Garlic Naan', price: '60', desc: 'Naan topped with minced garlic and cilantro', image: null },
-            ],
-            'Desserts': [
-                { name: 'Gulab Jamun (2 pcs)', price: '60', desc: 'Warm, syrup-soaked milk solid dumplings', image: 'https://images.unsplash.com/photo-1593179357116-c5208e474c8b?auto=format&fit=crop&w=600&q=80' },
-                { name: 'Rasgulla (2 pcs)', price: '50', desc: 'Spongy cottage cheese balls in sugar syrup', image: null },
-                { name: 'Ice Cream (Vanilla/Chocolate)', price: '70', desc: 'Classic scoops of joy', image: null },
-            ]
-        };
+  updateStats();
+}
 
-        const GALLERY_IMAGES = [
-            { url: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80', alt: 'Premium Seating' },
-            { url: 'https://images.unsplash.com/photo-1626776876729-bab4369a5a5a?auto=format&fit=crop&w=600&q=80', alt: 'Authentic Thali' },
-            { url: 'https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=600&q=80', alt: 'Family Dining Area' },
-            { url: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc0?auto=format&fit=crop&w=600&q=80', alt: 'Paneer Special' },
-            { url: 'https://images.unsplash.com/photo-1592861956120-e524fc739696?auto=format&fit=crop&w=600&q=80', alt: 'Cozy Interior' },
-            { url: 'https://images.unsplash.com/photo-1599487405609-56508c9d0d36?auto=format&fit=crop&w=600&q=80', alt: 'Starters' },
-            { url: 'https://images.unsplash.com/photo-1544148103-0773bf10d330?auto=format&fit=crop&w=600&q=80', alt: 'Restaurant Entrance' },
-            { url: 'https://images.unsplash.com/photo-1593179357116-c5208e474c8b?auto=format&fit=crop&w=600&q=80', alt: 'Desserts' },
-        ];
+function updateStats() {
+  const stats = document.getElementById('stats');
+  if (entries.length === 0) {
+    stats.style.display = 'none';
+    return;
+  }
+  stats.style.display = 'flex';
 
-        // --- Menu Logic (Dynamic Generation) ---
-        const categoryContainer = document.getElementById('category-buttons');
-        const menuGrid = document.getElementById('menu-grid');
-        const categories = Object.keys(MENU_DATA);
+  const pending = entries.filter(e => e.status === 'pending').length;
+  const sent = entries.filter(e => e.status === 'sent').length;
+  const failed = entries.filter(e => e.status === 'failed').length;
 
-        function renderMenu(category) {
-            // Button Active States
-            document.querySelectorAll('.cat-btn').forEach(btn => {
-                if (btn.dataset.category === category) {
-                    btn.classList.add('bg-maroon', 'text-cream', 'shadow-glow-maroon', 'scale-105');
-                    btn.classList.remove('bg-transparent', 'text-maroon', 'border-maroon/30');
-                    btn.classList.add('border-maroon');
-                } else {
-                    btn.classList.remove('bg-maroon', 'text-cream', 'shadow-glow-maroon', 'scale-105', 'border-maroon');
-                    btn.classList.add('bg-transparent', 'text-maroon', 'border-maroon/30');
-                }
-            });
+  document.getElementById('pendingCount').textContent = 'Pending: ' + pending;
+  document.getElementById('sentCount').textContent = 'Sent: ' + sent;
+  document.getElementById('failedCount').textContent = 'Failed: ' + failed;
+}
 
-            // Grid Render with Fade Effect
-            menuGrid.style.opacity = '0';
-            
-            setTimeout(() => {
-                menuGrid.innerHTML = '';
-                MENU_DATA[category].forEach((item, index) => {
-                    let imgHtml = '';
-                    if (item.image) {
-                        imgHtml = `
-                        <div class="h-56 overflow-hidden relative">
-                            <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover img-hover-zoom"/>
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                        </div>`;
-                    } else {
-                        imgHtml = `
-                        <div class="h-4 bg-maroonLight/10"></div>
-                        `
-                    }
-                    let descHtml = item.desc ? `<p class="text-gray-500 text-sm mt-3 font-light leading-relaxed">${item.desc}</p>` : '';
-                    
-                    const cardHtml = `
-                    <div class="bg-white rounded-[2rem] shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col group transform hover:-translate-y-2 reveal active" style="transition-delay: ${index * 100}ms">
-                        ${imgHtml}
-                        <div class="p-8 flex-grow flex flex-col justify-between z-10 bg-white ${item.image ? '-mt-6 rounded-t-[2rem]' : ''}">
-                            <div>
-                                <div class="flex justify-between items-start gap-4">
-                                    <h4 class="text-2xl font-serif font-bold text-maroon">${item.name}</h4>
-                                    <span class="font-bold text-lg bg-gold/10 text-maroon px-4 py-1.5 rounded-xl border border-gold/20 shrink-0">₹${item.price}</span>
-                                </div>
-                                ${descHtml}
-                            </div>
-                            <button onclick="window.open('https://wa.me/919876543210', '_blank')" class="mt-8 w-full py-3.5 rounded-xl font-bold text-sm tracking-wider transition-all duration-300 border-2 border-gold text-maroon hover:bg-gold hover:text-white uppercase flex justify-center items-center gap-2">
-                                <i data-lucide="shopping-bag" class="w-4 h-4"></i> Add to Order
-                            </button>
-                        </div>
-                    </div>`;
-                    
-                    menuGrid.innerHTML += cardHtml;
-                });
-                lucide.createIcons(); // Re-init icons for new HTML
-                menuGrid.style.opacity = '1';
-                menuGrid.style.transition = 'opacity 0.5s ease-in-out';
-            }, 300);
-        }
+function resetAll() {
+  if (entries.length > 0 && !confirm('Sab status reset ho jayega. Sure?')) return;
+  entries = [];
+  document.getElementById('output').innerHTML = '';
+  document.getElementById('stats').style.display = 'none';
+}
+</script>
 
-        // Generate Category Pills
-        categories.forEach(category => {
-            const btn = document.createElement('button');
-            btn.className = 'cat-btn px-8 py-3 rounded-full font-bold transition-all duration-300 border-2 tracking-wide uppercase text-sm hover:border-maroon hover:text-maroon';
-            btn.dataset.category = category;
-            btn.textContent = category;
-            btn.onclick = () => renderMenu(category);
-            categoryContainer.appendChild(btn);
-        });
-
-        // Initialize Menu
-        renderMenu(categories[0]);
-
-        // --- Gallery Generation ---
-        const galleryGrid = document.getElementById('gallery-grid');
-        GALLERY_IMAGES.forEach((img, index) => {
-            galleryGrid.innerHTML += `
-                <div class="group relative aspect-square overflow-hidden rounded-2xl cursor-pointer shadow-lg reveal" style="transition-delay: ${(index % 4) * 100}ms">
-                    <img src="${img.url}" alt="${img.alt}" class="w-full h-full object-cover img-hover-zoom"/>
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end justify-center pb-6">
-                        <span class="text-white font-bold tracking-widest uppercase text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">${img.alt}</span>
-                    </div>
-                </div>
-            `;
-        });
-
-        // --- Scroll Animations (Intersection Observer) ---
-        function reveal() {
-            var reveals = document.querySelectorAll(".reveal");
-            for (var i = 0; i < reveals.length; i++) {
-                var windowHeight = window.innerHeight;
-                var elementTop = reveals[i].getBoundingClientRect().top;
-                var elementVisible = 100;
-                if (elementTop < windowHeight - elementVisible) {
-                    reveals[i].classList.add("active");
-                }
-            }
-        }
-        window.addEventListener("scroll", reveal);
-        // Trigger once on load
-        reveal();
-
-        // --- Navbar Scroll Logic ---
-        const navbar = document.getElementById('navbar');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                navbar.classList.add('nav-scrolled');
-                navbar.classList.remove('bg-transparent', 'py-5');
-                navbar.classList.add('py-3');
-            } else {
-                navbar.classList.add('bg-transparent', 'py-5');
-                navbar.classList.remove('nav-scrolled', 'py-3');
-            }
-        });
-
-        // --- Mobile Menu Toggle ---
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const iconOpen = document.getElementById('menu-icon-open');
-        const iconClose = document.getElementById('menu-icon-close');
-        
-        function toggleMenu() {
-            if(mobileMenu.classList.contains('hidden')) {
-                mobileMenu.classList.remove('hidden');
-                // Chhoti delay animation ke liye
-                setTimeout(() => {
-                    mobileMenu.classList.add('opacity-100', 'translate-y-0');
-                    mobileMenu.classList.remove('opacity-0', '-translate-y-4');
-                }, 10);
-            } else {
-                mobileMenu.classList.add('opacity-0', '-translate-y-4');
-                mobileMenu.classList.remove('opacity-100', 'translate-y-0');
-                setTimeout(() => {
-                    mobileMenu.classList.add('hidden');
-                }, 300);
-            }
-            iconOpen.classList.toggle('hidden');
-            iconClose.classList.toggle('hidden');
-        }
-
-        mobileMenuBtn.addEventListener('click', toggleMenu);
-
-        // Auto close on link click
-        document.querySelectorAll('.mobile-link').forEach(link => {
-            link.addEventListener('click', () => {
-                if(!mobileMenu.classList.contains('hidden')) toggleMenu();
-            });
-        });
-
-        // Init Icons on load
-        lucide.createIcons();
-    </script>
 </body>
 </html>
