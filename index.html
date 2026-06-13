@@ -76,15 +76,17 @@
 
   .row .num { font-family: monospace; font-weight: bold; }
   .row a {
-    padding: 6px 14px;
+    padding: 6px 10px;
     border-radius: 4px;
     text-decoration: none;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: bold;
     background: #25D366;
     color: white;
   }
+  .row a.business { background: #128C7E; }
   .row.sent a { background: #6c757d; pointer-events: none; }
+  .row .send-group { display: flex; gap: 4px; }
 </style>
 </head>
 <body>
@@ -170,7 +172,8 @@ function render() {
   output.innerHTML = '';
 
   entries.forEach((entry, idx) => {
-    const url = 'https://wa.me/' + entry.num + '?text=' + encodeURIComponent(msg);
+    const phoneDigits = entry.num;
+    const encodedMsg = encodeURIComponent(msg);
 
     const row = document.createElement('div');
     row.className = 'row ' + entry.status;
@@ -179,11 +182,14 @@ function render() {
     label.className = 'num';
     label.textContent = (idx + 1) + '. ' + entry.num;
 
-    const sendLink = document.createElement('a');
-    sendLink.href = url;
-    sendLink.target = '_blank';
-    sendLink.textContent = entry.status === 'sent' ? 'Sent' : 'Send';
-    sendLink.onclick = function() {
+    const group = document.createElement('div');
+    group.className = 'send-group';
+
+    // Normal WhatsApp (65)
+    const sendNormal = document.createElement('a');
+    sendNormal.href = 'intent://send?phone=' + phoneDigits + '&text=' + encodedMsg + '#Intent;package=com.whatsapp;scheme=whatsapp;end';
+    sendNormal.textContent = entry.status === 'sent' ? 'Sent' : '65';
+    sendNormal.onclick = function() {
       if (entry.status === 'pending') {
         entry.status = 'sent';
         saveData();
@@ -191,8 +197,28 @@ function render() {
       }
     };
 
+    // WhatsApp Business (76)
+    const sendBiz = document.createElement('a');
+    sendBiz.className = 'business';
+    sendBiz.href = 'intent://send?phone=' + phoneDigits + '&text=' + encodedMsg + '#Intent;package=com.whatsapp.w4b;scheme=whatsapp;end';
+    sendBiz.textContent = entry.status === 'sent' ? 'Sent' : '76';
+    sendBiz.onclick = function() {
+      if (entry.status === 'pending') {
+        entry.status = 'sent';
+        saveData();
+        render();
+      }
+    };
+
+    if (entry.status === 'sent') {
+      group.appendChild(sendNormal);
+    } else {
+      group.appendChild(sendNormal);
+      group.appendChild(sendBiz);
+    }
+
     row.appendChild(label);
-    row.appendChild(sendLink);
+    row.appendChild(group);
     output.appendChild(row);
   });
 
