@@ -174,11 +174,6 @@ const STORAGE_KEY_65 = 'wa_bulk_sender_data_65';
 let currentAccount = null; // 1 or 2
 let entries = [];
 
-const PACKAGES = {
-  1: 'com.whatsapp.w4b',  // 76 - Business
-  2: 'com.whatsapp'        // 65 - Normal
-};
-
 function storageKey() {
   return currentAccount === 1 ? STORAGE_KEY_76 : STORAGE_KEY_65;
 }
@@ -251,23 +246,23 @@ function addNumbers() {
 
 function render() {
   const msg = document.getElementById('msg').value.trim();
-  const pkg = PACKAGES[currentAccount];
   const output = document.getElementById('output');
   output.innerHTML = '';
 
   entries.forEach((entry, idx) => {
     const encodedMsg = encodeURIComponent(msg);
-    const url = 'intent://send?phone=' + entry.num + '&text=' + encodedMsg + '#Intent;package=' + pkg + ';scheme=whatsapp;end';
+    const url = 'https://wa.me/' + entry.num + '?text=' + encodedMsg;
 
     const row = document.createElement('div');
     row.className = 'row ' + entry.status;
 
     const label = document.createElement('span');
     label.className = 'num';
-    label.textContent = (idx + 1) + '.';
+    label.textContent = (idx + 1) + '. ' + entry.num;
 
     const sendLink = document.createElement('a');
     sendLink.href = url;
+    sendLink.target = '_blank';
     sendLink.textContent = entry.status === 'sent' ? 'Sent' : 'Send';
     sendLink.onclick = function() {
       if (entry.status === 'pending') {
